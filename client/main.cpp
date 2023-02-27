@@ -11,9 +11,6 @@ struct sockaddr_in serv_addr;
 char buffer[1024] = { 0 };
 
 int send_telem(){
-    printf("start collect json\n");
-    char pressed_keys[256]={0};
-    char pressed_keys_special[256]={0};
     //convert data to json
     sprintf(buffer,"{\"time\":%ld,\"pose\":{\"position\":[%f,%f,%f],\"orientation\":[%f,%f,%f]}, \"pressed\":[",
         time(NULL), cam.x, cam.y, cam.z, angleCam.x, angleCam.y, angleCam.z);
@@ -76,7 +73,6 @@ int socket_connect(){
 
 void Reshape(int w, int h) {
 	// предотвращение деления на ноль
-	int width = w, height = h;
 	if (h == 0)
 		h = 1;
 	float ratio = w * 1 / h;
