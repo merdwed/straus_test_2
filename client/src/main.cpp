@@ -75,7 +75,7 @@ void Reshape(int w, int h) {
 	// предотвращение деления на ноль
 	if (h == 0)
 		h = 1;
-	float ratio = w * 1 / h;
+	//float ratio = w * 1 / h;
 	// используем матрицу проекции
 
 	glMatrixMode(GL_PROJECTION);
