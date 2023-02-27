@@ -40,6 +40,7 @@ int send_telem(){
     int status = send(client_fd, buffer, strlen(buffer), 0);
     if(status<0){
         printf("\n Send data error! \n");
+        close(client_fd);
         return -1;
     }
     return 0;
@@ -69,7 +70,23 @@ int socket_connect(){
     }
     return 0;
 }
-
+int authorization(){
+    sprintf(buffer,"{\"username\":\"merdwed\"}");
+    int status = send(client_fd, buffer, strlen(buffer), 0);
+    if(status<0){
+        printf("\n Authorization error! \n");
+        close(client_fd);
+        return -1;
+    }
+    status = recv(client_fd, buffer, 1024,0);
+    if(status<0){
+        printf("\n Authorization error! \n");
+        close(client_fd);
+        return -1;
+    }
+    printf("%s",buffer);
+    return 0;
+}
 
 void Reshape(int w, int h) {
 	// предотвращение деления на ноль
@@ -158,6 +175,7 @@ int main(int argc, char** argv) {
     if(socket_connect() < 0){
         return -1;
     }
+    authorization();
 	// инициализация GLUT и создание окна
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
