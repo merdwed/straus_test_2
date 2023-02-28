@@ -60,15 +60,15 @@ def authorization(conn) -> User:
     data = conn.recv(1024)
     auth = json.loads(data)
     if not 'username' in auth:
-        conn.sendall(b'"{message":"bad authorization request}"')
+        conn.sendall(b'{"message":"bad authorization request"}')
         return None
     username:str=auth['username']
     if not (username in user_dict):
         user_dict[username]=User(username)
     if user_dict[username].online == True:
-        conn.sendall(b'"{message":"this user is already online}"')
+        conn.sendall(b'{"message":"this user is already online"}')
         return None
-    conn.sendall(b'"{message":"authorization OK}"')
+    conn.sendall(b'{"message":"authorization OK"}')
     return user_dict[username]
 
 def threaded_recv(conn,addr):
