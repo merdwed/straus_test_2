@@ -27,6 +27,7 @@ user_dict:Dict[str,User]= dict()
 HOST = "0.0.0.0"  
 PORT = 15243  
 echo_username = ''
+
 def set_echo_username(username):
     global echo_username
     echo_username=username
@@ -85,6 +86,7 @@ def threaded_recv(conn,addr):
                         print(telem)
     print(f'{addr[0]}:{addr[1]} disconnected')
 def Main():
+    print(f'server started on {HOST}:{PORT}')
     print('try \'help\' to see allowed command')
     start_new_thread(threaded_cli, ())
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
