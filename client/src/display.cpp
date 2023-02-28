@@ -1,5 +1,3 @@
-#define _CRT_SECURE_NO_WARNINGS 1
-
 #include "display.h"
 
 
@@ -8,7 +6,6 @@
 
 
 xyz_structure cam = { 0,5,1 }, direct = { 1,0, };
-
 
 
 
@@ -31,7 +28,7 @@ void draw_text(const char* str_for_character,int len) {
 void draw_text(const char* str_for_character) {
 	draw_text(str_for_character, strlen(str_for_character));
 }
-void draw_symbols()
+void draw_game_data()
 {
 	glPushMatrix();
 	glTranslated(0, 0, -0.1);
@@ -76,11 +73,30 @@ void draw_lines()
 	glPopMatrix();
 }
 
-void Display(void) {
+void reshape(int w, int h) {
+	// предотвращение деления на ноль
+	if (h == 0)
+		h = 1;
+	//float ratio = w * 1 / h;
+	// используем матрицу проекции
+
+	glMatrixMode(GL_PROJECTION);
+	// обнуляем матрицу
+	glLoadIdentity();
+	//glViewport(-(1000 - w) / 2, -(1000 - h) / 2, w / h * 1000, 1000);
+	glViewport(0, 0, w, h);
+	// установить параметры вьюпорта
+
+	// установить корректную перспективу
+	gluPerspective(45, 1, 0.1, 100); 
+	// вернуться к матрице проекции
+	glMatrixMode(GL_MODELVIEW);
+}
+void display(void) {
 	glClearColor(0.3, 0.8, 0.8, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//очистить буфер цвета и глубины
 	glLoadIdentity();// обнулить трансформацию
-	draw_symbols();
+	draw_game_data();
 	gluLookAt(cam.x, cam.y, cam.z,
 		cam.x + direct.x, cam.y + direct.y, cam.z + direct.z,
 		0, 0, 1);// установить камеру 

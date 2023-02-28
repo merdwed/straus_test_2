@@ -1,12 +1,14 @@
 #include "display.h"
 
-char host[16] = "127.0.0.1";
-int port = 5628;
+
 bool keychar[256];
 bool keyint[256];
 const xyz_structure deltaCam = { 0.025,0.025,0.025 }, deltaMove = { 0.2,0.2,0.2 };
 xyz_structure angleCam={0,0,0}; //углы поворота
 int client_fd; //socket
+char host[32] = "127.0.0.1";
+int port = 5628;
+char username[32]="user";
 struct sockaddr_in serv_addr;
 char buffer[1024] = { 0 };
 
@@ -36,18 +38,18 @@ int send_telem(){
         buffer[strlen(buffer)-1]=0;//erase comma
     }
     sprintf(buffer+strlen(buffer), "]}");
-    printf("%s\n",buffer);
+    //std::cout<<buffer;
     int status = send(client_fd, buffer, strlen(buffer), 0);
     if(status<0){
-        printf("\n Send data error! \n");
+        std::cout<<"Send data error! closed connection "<<std::endl;
         close(client_fd);
-        return -1;
+        exit(-1);
     }
     return 0;
 }
 int socket_connect(){
     if ((client_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        printf("\n Socket creation error \n");
+        std::cout<<"Socket creation error"<<std::endl;
         return -1;
     }
     serv_addr.sin_family = AF_INET;
@@ -57,56 +59,37 @@ int socket_connect(){
     // form
     if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)
         <= 0) {
-        printf(
-            "\nInvalid address/ Address not supported \n");
+        std::cout<<"Invalid address/ Address not supported"<<std::endl;
         return -1;
     }
   
     if ((connect(client_fd, (struct sockaddr*)&serv_addr,
                    sizeof(serv_addr)))
         < 0) {
-        printf("\nConnection Failed \n");
+        std::cout<<"Connection Failed"<<std::endl;
         return -1;
     }
     return 0;
 }
 int authorization(){
-    sprintf(buffer,"{\"username\":\"merdwed\"}");
+    sprintf(buffer,"{\"username\":\"%s\"}",username);
     int status = send(client_fd, buffer, strlen(buffer), 0);
     if(status<0){
-        printf("\n Authorization error! \n");
+        std::cout<<"\n Authorization error!"<<std::endl;
         close(client_fd);
         return -1;
     }
     status = recv(client_fd, buffer, 1024,0);
+    std::cout<<buffer<<std::endl;
+    
     if(status<0){
-        printf("\n Authorization error! \n");
+        std::cout<<"\n Authorization error!"<<std::endl;
         close(client_fd);
         return -1;
     }
-    printf("%s",buffer);
     return 0;
 }
 
-void Reshape(int w, int h) {
-	// предотвращение деления на ноль
-	if (h == 0)
-		h = 1;
-	//float ratio = w * 1 / h;
-	// используем матрицу проекции
-
-	glMatrixMode(GL_PROJECTION);
-	// обнуляем матрицу
-	glLoadIdentity();
-	//glViewport(-(1000 - w) / 2, -(1000 - h) / 2, w / h * 1000, 1000);
-	glViewport(0, 0, w, h);
-	// установить параметры вьюпорта
-
-	// установить корректную перспективу
-	gluPerspective(45, 1, 0.1, 100); 
-	// вернуться к матрице проекции
-	glMatrixMode(GL_MODELVIEW);
-}
 
 void keyboard_char(unsigned char key, int x, int y) {
 	keychar[key] = true;
@@ -167,33 +150,46 @@ void timef(int value) {
 
 	glutTimerFunc(40, timef, 0); // recursion(actually no)
 }
-void mouse(int button, int state, int x, int y) {
-	printf("%d %d %d %d\n", button, state, x, y);
-}
+
+
 int main(int argc, char** argv) {
-	
+	char input_char=0;
+    std::cout<<"use the default address (127.0.0.1:15243)? y/n:";
+    std::cin>>input_char;
+    if(input_char=='n' or input_char=='N'){
+        std::cout<<"enter ip address:";
+        std::cin>>host;
+        std::cout<<"enter port:";
+        std::cin>>port;
+    }
+    std::cout<<"use the default username (username)? y/n:";
+    std::cin>>input_char;
+    if(input_char=='n' or input_char=='N'){
+        std::cout<<"enter username:";
+        std::cin>>username;
+    }
     if(socket_connect() < 0){
         return -1;
     }
     authorization();
-	// инициализация GLUT и создание окна
+
+
+    // инициализация GLUT и создание окон
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 
 	glutInitWindowPosition(0, 0);
 	glutInitWindowSize(1000, 1000);
-	glutCreateWindow("Trajectory");
+	glutCreateWindow(username);
+    glutPositionWindow(520,20);
+	glutReshapeFunc(reshape);
+    glutDisplayFunc(display);//main draw function
 	InitGL();
-	glutDisplayFunc(Display);//main draw function
-	glutReshapeFunc(Reshape);
-
 	glutTimerFunc(20, timef, 0);
 	glutSpecialFunc(keyboard_int);//key down processing (arrows)
 	glutSpecialUpFunc(keyboard_int_up);//key up processing (arrows)
 	glutKeyboardFunc(keyboard_char);//key down processing (w,a,s,d)
 	glutKeyboardUpFunc(keyboard_char_up);//key up processing  (w,a,s,d)
-
-	glutMouseFunc(mouse);
 	
 
 	
