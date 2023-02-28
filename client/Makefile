@@ -13,7 +13,8 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(OBJECTS) $(GLFAGS) -o $@
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
+	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-	rm -rf *.o client
+	rm -rf build client
