@@ -38,10 +38,9 @@ int send_telem(){
         buffer[strlen(buffer)-1]=0;//erase comma
     }
     sprintf(buffer+strlen(buffer), "]}");
-    //std::cout<<buffer;
-    int status = send(client_fd, buffer, strlen(buffer), 0);
+    ssize_t status = send(client_fd, buffer, strlen(buffer), MSG_NOSIGNAL);
     if(status<0){
-        std::cout<<"Send data error! closed connection "<<std::endl;
+        std::cout<<"Send data error! closed connection"<<std::endl;
         close(client_fd);
         exit(-1);
     }
@@ -73,13 +72,13 @@ int socket_connect(){
 }
 int authorization(){
     sprintf(buffer,"{\"username\":\"%s\"}",username);
-    int status = send(client_fd, buffer, strlen(buffer), 0);
+    int status = send(client_fd, buffer, strlen(buffer), MSG_NOSIGNAL);
     if(status<0){
         std::cout<<"\n Authorization error!"<<std::endl;
         close(client_fd);
         return -1;
     }
-    status = recv(client_fd, buffer, 1024,0);
+    status = recv(client_fd, buffer, 1024,MSG_NOSIGNAL);
     std::cout<<buffer<<std::endl;
     
     if(status<0){
