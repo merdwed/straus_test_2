@@ -12,20 +12,18 @@
 
 Сборка клиента
     
-    cd straus_test_2/client
-    make
+    cd straus_test_2
+    make -C ./client
 
 ## Запуск сервера:
 
-    cd straus_test_2/server
-    python3 server.py
+    python3 ./server/server.py
 
 Серверная часть имеет набор консольных команд, попробуйте **help**
 
 ## Запуск клиента
 
-    cd straus_test_2/client
-    ./client
+    ./client/client
 
 Интерфейс для авторизации консольный, по умолчанию адрес сервера 127.0.0.1:15243 имя пользователя - user
 
