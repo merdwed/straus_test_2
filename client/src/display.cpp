@@ -107,5 +107,12 @@ void Render::display(void) {
 		0, 0, 1);// установить камеру 
 	glLineWidth(1);
 	draw_lines();
+	glPushMatrix();
+	glColor3d(0.5, 0.5, 0.5);
+	glTranslatef(0.0f, 0.0f, 20.0f);
+	glutSolidSphere(5,20,20);
+	glColor3d(0, 0.5, 0);
+	glutSolidSphere(0.4,20,20);
+	glPopMatrix();
 	glutSwapBuffers();
 }
