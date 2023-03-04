@@ -4,11 +4,10 @@
 
 
 
-
-xyz_structure cam = { 0,5,1 }, direct = { 1,0, };
-
+// xyz_structure cam = { 0,5,1 }, direct = { 1,0, };
 
 
+Camera *display_camera;
 GLvoid InitGL()
 {
 	glClearColor(0, 0, 0, 0);
@@ -20,7 +19,9 @@ GLvoid InitGL()
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
 }
-
+void set_camera(Camera *camera){
+	display_camera = camera;
+}
 void draw_text(const char* str_for_character,int len) {
 	for (int i = 0; i < len; i++)
 		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, str_for_character[i]);
@@ -37,16 +38,22 @@ void draw_game_data()
 	glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, '+');
 	
 	char str_for_character[128];
+	
+	sprintf(str_for_character, "x: %+5f y: %+5f z: %+5f", display_camera->look_vector.x, display_camera->look_vector.y, display_camera->look_vector.z);
+	glRasterPos3f(-0.03, 0.03, 0);
+	draw_text("look at: ");
+	draw_text(str_for_character, strlen(str_for_character));
 
-	sprintf(str_for_character, "x: %+5f y: %+5f z: %+5f", cam.x, cam.y, cam.z);
+	sprintf(str_for_character, "x: %+5f y: %+5f z: %+5f", display_camera->rotation.x, display_camera->rotation.y, display_camera->rotation.z);
+	glRasterPos3f(-0.03, 0.025, 0);
+	draw_text("euler angle: ");
+	draw_text(str_for_character, strlen(str_for_character));
+
+	sprintf(str_for_character, "x: %+5f y: %+5f z: %+5f", display_camera->position.x, display_camera->position.y, display_camera->position.z);
 	glRasterPos3f(-0.03, 0.02, 0);
 	draw_text("coord: ");
 	draw_text(str_for_character, strlen(str_for_character));
 	
-	sprintf(str_for_character, "x: %+5f y: %+5f z: %+5f", direct.x, direct.y, direct.z);
-	glRasterPos3f(-0.03, 0.025, 0);
-	draw_text("look at: ");
-	draw_text(str_for_character, strlen(str_for_character));
 
 	
 	glPopMatrix();
@@ -97,13 +104,11 @@ void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//очистить буфер цвета и глубины
 	glLoadIdentity();// обнулить трансформацию
 	draw_game_data();
-	gluLookAt(cam.x, cam.y, cam.z,
-		cam.x + direct.x, cam.y + direct.y, cam.z + direct.z,
+	Point3D pos = display_camera->position;
+	Point3D look_pos = display_camera->position + display_camera->look_vector;
+	gluLookAt(pos.x, pos.y, pos.z,
+		look_pos.x, look_pos.y, look_pos.z,
 		0, 0, 1);// установить камеру 
-				 /*gluLookAt(cam.x, cam.y, cam.z,
-				 cam.x + magnito[global_i-1].z, cam.y - magnito[global_i-1].y, cam.z + magnito[global_i-1].z,
-				 0, 1, 0);*/
-
 
 
 	glLineWidth(1);

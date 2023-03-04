@@ -1,21 +1,19 @@
 #include "display.h"
 
-
 bool keychar[256];
 bool keyint[256];
-const xyz_structure deltaCam = { 0.025,0.025,0.025 }, deltaMove = { 0.2,0.2,0.2 };
-xyz_structure angleCam={0,0,0}; //углы поворота
 int client_fd; //socket
 char host[32] = "127.0.0.1";
 int port = 5628;
 char username[32]="user";
 struct sockaddr_in serv_addr;
 char buffer[1024] = { 0 };
+Camera main_camera = Camera({0.5f,5.f,1.f }, { 0.f,0.f, 0.f});
 
 int send_telem(){
     //convert data to json
     sprintf(buffer,"{\"time\":%ld,\"pose\":{\"position\":[%f,%f,%f],\"orientation\":[%f,%f,%f]}, \"pressed\":[",
-        time(NULL), cam.x, cam.y, cam.z, angleCam.x, angleCam.y, angleCam.z);
+        time(NULL), main_camera.position.x, main_camera.look_vector.y, main_camera.look_vector.z, main_camera.rotation.x, main_camera.rotation.y, main_camera.rotation.z);
     int count = 0;
     //all pressed char
     for(int i = 0;i<256;++i)
@@ -105,41 +103,30 @@ void keyboard_int_up(int key, int x, int y) {
 //обработка всех кнопок управления с клавиатуры
 void keyboardParse() {
 	//вращение камеры вокруг своих локальных осей
-	if (keyint[GLUT_KEY_UP])   angleCam.x += deltaCam.x;
-	if (keyint[GLUT_KEY_DOWN]) angleCam.x -= deltaCam.x;
-	if (keyint[GLUT_KEY_RIGHT])angleCam.z -= deltaCam.z;
-	if (keyint[GLUT_KEY_LEFT]) angleCam.z += deltaCam.z;
-	if (angleCam.x >  1.57) angleCam.x -= deltaCam.x;
-	if (angleCam.x < -1.57) angleCam.x += deltaCam.x;
-	direct.y = -cos(angleCam.x) * cos(angleCam.z);
-	direct.z = sin(angleCam.x);
-	direct.x = cos(angleCam.x) * sin(angleCam.z);
+	if (keyint[GLUT_KEY_LEFT])  main_camera.rotate_left();
+	if (keyint[GLUT_KEY_RIGHT]) main_camera.rotate_right();
+	if (keyint[GLUT_KEY_UP])    main_camera.rotate_up();
+	if (keyint[GLUT_KEY_DOWN])  main_camera.rotate_down();
 
 	//перемещение камеры
 	if ( keychar['A'] || keychar['a']) {
-        cam.x -= direct.y*deltaMove.x;
-        cam.y += direct.x*deltaMove.y;
+        main_camera.move_left();
     }
 	if ( keychar['D'] || keychar['d']) {
-        cam.x += direct.y*deltaMove.x;
-        cam.y -= direct.x*deltaMove.y;
+        main_camera.move_right();
     }
 
 	//перемещение камеры
 	if (keychar['W'] || keychar['w']) {
-        cam.x += direct.x*deltaMove.x;
-        cam.y += direct.y*deltaMove.y;
-        cam.z += direct.z*deltaMove.z;
+        main_camera.move_forward();
     }
 	if (keychar['S'] || keychar['s']) {
-        cam.x -= direct.x*deltaMove.x;
-        cam.y -= direct.y*deltaMove.y;
-        cam.z -= direct.z*deltaMove.z;
+        main_camera.move_back();    
     }
 
 	//перемещение камеры вверх вниз 
-	if (keychar['e'] || keychar['E']) cam.z += deltaMove.z;
-	if (keychar['q'] || keychar['Q']) cam.z -= deltaMove.z;
+	// if (keychar['e'] || keychar['E']) cam.z += deltaMove.z;
+	// if (keychar['q'] || keychar['Q']) cam.z -= deltaMove.z;
 }
 //redraw cycle
 void timef(int value) {
@@ -171,7 +158,7 @@ int main(int argc, char** argv) {
         return -1;
     }
     authorization();
-
+    set_camera(&main_camera);
 
     // инициализация GLUT и создание окон
 	glutInit(&argc, argv);
