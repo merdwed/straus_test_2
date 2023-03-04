@@ -57,9 +57,8 @@ void timef(int value) {
 	glutTimerFunc(40, timef, 0); // recursion(actually no)
 }
 
-
-int main(int argc, char** argv) {
-	char input_char=0;
+void user_interface(){
+    char input_char=0;
     std::cout<<"use the default address ("<<tcp_client.ip<<":"<<tcp_client.port << ")? y/n:";
     std::cin>>input_char;
     if(input_char=='n' or input_char=='N'){
@@ -74,6 +73,12 @@ int main(int argc, char** argv) {
         std::cout<<"enter username:";
         std::cin>>tcp_client.username;
     }
+}
+int main(int argc, char** argv) {
+    //glut init
+    glutInit(&argc, argv);
+	
+    user_interface();
 
     if(tcp_client.socket_connect() != 0){
         return errno;
@@ -81,30 +86,15 @@ int main(int argc, char** argv) {
     if(tcp_client.authorization()!= 0){
         return errno;
     }
-    set_camera(&main_camera);
 
-    // инициализация GLUT и создание окон
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
-
-	glutInitWindowPosition(0, 0);
-	glutInitWindowSize(1000, 1000);
-	glutCreateWindow(tcp_client.username.c_str());
-    glutPositionWindow(520,20);
-	glutReshapeFunc(reshape);
-    glutDisplayFunc(display);//main draw function
-	InitGL();
-	glutTimerFunc(20, timef, 0);
+    Render render(tcp_client.username.c_str(), &main_camera);
+    
+	glutTimerFunc(20, timef, 0);//timer cycle
 	glutSpecialFunc(keyboard_int);//key down processing (arrows)
 	glutSpecialUpFunc(keyboard_int_up);//key up processing (arrows)
 	glutKeyboardFunc(keyboard_char);//key down processing (w,a,s,d)
 	glutKeyboardUpFunc(keyboard_char_up);//key up processing  (w,a,s,d)
-	
-
-	
-	srand(time(0));
-
-
 	glutMainLoop();
-	return 0;
+	
+    return 0;
 }
