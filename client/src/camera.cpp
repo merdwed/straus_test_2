@@ -35,6 +35,14 @@ void Camera::move_left(){
 void Camera::move_right(){
     this->move_along(Vector3D(this->look_vector.y, -this->look_vector.x, 0));
 }
+void Camera::move_up(){
+    float xy_d = sqrt(this->look_vector.x*this->look_vector.x+this->look_vector.y*this->look_vector.y);
+    this->move_along(Vector3D(-this->look_vector.x/xy_d*this->look_vector.z, -this->look_vector.y/xy_d*this->look_vector.z, xy_d));
+}
+void Camera::move_down(){
+    float xy_d = sqrt(this->look_vector.x*this->look_vector.x+this->look_vector.y*this->look_vector.y);
+    this->move_along(Vector3D(this->look_vector.x/xy_d*this->look_vector.z, this->look_vector.y/xy_d*this->look_vector.z, -xy_d));
+}
 void Camera::check_rotate_limits(){
     if (this->rotation.x >  1.57f) this->rotation.x = 1.57f;
     if (this->rotation.x < -1.57f) this->rotation.x = -1.57f;

@@ -16,6 +16,8 @@ public:
     void move_back();
     void move_left();
     void move_right();
+    void move_up();
+    void move_down();
 private:
     void check_rotate_limits();
     void update_look_vector();

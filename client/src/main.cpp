@@ -45,8 +45,8 @@ void keyboardParse() {
     }
 
 	//перемещение камеры вверх вниз 
-	// if (keychar['e'] || keychar['E']) cam.z += deltaMove.z;
-	// if (keychar['q'] || keychar['Q']) cam.z -= deltaMove.z;
+	 if (key_set.count('E') || key_set.count('e')) main_camera.move_up();
+	 if (key_set.count('Q') || key_set.count('q')) main_camera.move_down();
 }
 //redraw cycle
 void timef(int value) {
